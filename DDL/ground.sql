@@ -1,0 +1,16 @@
+CREATE TABLE Ground (
+    GroundID NUMBER PRIMARY KEY,
+    GroundName VARCHAR2(100),
+    Location VARCHAR2(100),
+    Capacity NUMBER,
+    HourlyRate NUMBER
+);
+
+CREATE SEQUENCE seq_ground_id START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_ground_id
+BEFORE INSERT ON Ground
+FOR EACH ROW
+BEGIN
+    SELECT seq_ground_id.NEXTVAL INTO :NEW.GroundID FROM dual;
+END;
