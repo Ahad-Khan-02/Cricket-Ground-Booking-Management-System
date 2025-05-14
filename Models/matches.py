@@ -29,9 +29,20 @@ def get_match_info(matchID):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT * FROM CricketMatches
-        WHERE MatchID = :1
-    """, (matchID,))
+    SELECT M.MatchTitle,
+           TO_CHAR(M.MatchDate, 'DD-MON-YYYY'),
+           M.StartTime,
+           M.EndTime,
+           M.TeamA,
+           M.TeamB,
+           G.GroundName,
+           G.Location,
+           G.Capacity,
+           G.HourlyRate                           
+    FROM CricketMatches M, Ground G 
+    WHERE M.GroundID = G.GroundID AND M.MatchID = :1
+""", (matchID,))
+
 
     result = cursor.fetchall()  
 

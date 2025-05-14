@@ -1,6 +1,6 @@
 from DB.connection import get_connection
-from email_validator import validate_email,EmailNotValidError
 import bcrypt
+import re
 
 
 def authenticate_user(email, password):
@@ -17,7 +17,6 @@ def authenticate_user(email, password):
     conn.close()
 
     if result is None:
-        print("Invalid Email")
         return False
     
     hash_password = result[0]
@@ -25,57 +24,79 @@ def authenticate_user(email, password):
     if bcrypt.checkpw(password.encode(), hash_password_bytes):
         return result[1]
     else:
-        print("Invalid password")
         return False
     
 
-def authenticate_email(email):
-    try:
-        valid = validate_email(email)  
-        return "Valid Email",True
-    except EmailNotValidError as e:
-        return f"Invalid Email: {e}",False
+def validate_registration(name, email, password, phone, role,confirm_password):
+    info=[name,email,phone,password,confirm_password,role]
+    if any(i == '' for i in info):
+        return "All fields must be filled",False
     
+    if password != confirm_password:
+        return "Passwords do not match",False
 
-def register_user(name, email,password, phone, role):
+    name_regex = r"^[A-Za-z'-]{4,50}$"
+    if not re.match(name_regex, name):
+        return "Name must be 4-50 letters only without spaces", False
+    
+    email_regex = r'^(?!.*\.\.)(?!\.)(?!.*\.$)[a-zA-Z0-9._]+@gmail\.com$'
+    if not re.match(email_regex, email):
+        return "Invalid Email", False
+
+    phone_regex = r'^03[0-9]{9}$'
+    if not re.match(phone_regex, phone):
+        return "Phone number must be 11 digits, start with '03', and contain only numbers", False
+
+    if len(password) < 8:
+        return 'Password must contain at least 8 characters', False
+
     conn = get_connection()
     cursor = conn.cursor()
-    
-    if not name.isalpha():
-        return 'Name must be in alphabets'
-    email_validity=authenticate_email(email)
-    if not(email_validity[1]):
-        return email_validity[0]
-    if len(password)<8:
-        return 'length of pass must be greater than 8'
-    if not(phone.isdigit()):
-        return 'Phone must a number'
-    
+
+    cursor.execute("SELECT * FROM Users WHERE Email=:1", (email,))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return 'Email already exists', False
+
+    cursor.execute("SELECT * FROM Users WHERE Phone=:1", (phone,))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return 'Phone already exists', False
+
+    cursor.close()
+    conn.close()
+    return "Validation successful", True
+
+
+def register_user(name, email, password, phone, role):
+    conn = get_connection()
+    cursor = conn.cursor()
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode(), salt)
-    
     try:
         cursor.execute("""
-                INSERT INTO Users (Name, Email, Password, Phone, Role) 
-                VALUES (:1, :2, :3, :4, :5)
-            """, (name, email,hashed_password, phone, role))
+            INSERT INTO Users (Name, Email, Password, Phone, Role) 
+            VALUES (:1, :2, :3, :4, :5)
+        """, (name, email, hashed_password, phone, role))
         conn.commit()
-        return "Account Created Succesfully"
-
+        return "Account created successfully", True
     except Exception as e:
         conn.rollback()
-        return "Error:" + str(e)
+        return f"Error: {e}", False
     finally:
         cursor.close()
         conn.close()
+
     
-def get_role(userID):
+def get_role(email):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT role FROM Users WHERE UserID=:1",
-        (userID,)
+        "SELECT role FROM Users WHERE Email=:1",
+        (email,)
     )
     result = cursor.fetchone()
     cursor.close()
