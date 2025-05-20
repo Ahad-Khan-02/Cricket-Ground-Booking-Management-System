@@ -1,18 +1,18 @@
 import customtkinter as ctk
 
-def audience_dashboard_window():
+def audience_dashboard_window(audienceID):
 
     from Models.matches import get_upcoming_matches,get_match_info
     from UI.heading import heading
     from UI.payment import payment_window   
 
     matches=get_upcoming_matches()
+    
     print(matches)
 
     def book_ticket(matchID):
         match_info=get_match_info(matchID)
-        app.destroy()
-        payment_window(match_info)
+        payment_window(match_info,matchID,audienceID)
 
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
@@ -23,14 +23,25 @@ def audience_dashboard_window():
     app.bind("<Escape>", lambda e: app.attributes("-fullscreen", False))
 
     heading(app, 'UPCOMMING MATCHES')
-    
-
 
     main_frame = ctk.CTkScrollableFrame(app, width=950, fg_color="#000000")
     main_frame.grid(row=1, column=0, padx=20, pady=20, sticky="nsew")
     main_frame.grid_columnconfigure((0, 1, 2, 3), weight=1, uniform="col")
     main_frame.grid_rowconfigure(0, weight=0)  
     main_frame.grid_rowconfigure(1, weight=1) 
+
+    back_button = ctk.CTkButton(app, text="← Back", width=80, command= lambda: (app.destroy()))
+    back_button.place(x=40, y=40)  
+
+    if not matches:
+        no_match_label = ctk.CTkLabel(
+            main_frame,
+            text="No upcoming matches available.",
+            font=("Arial", 16),
+            text_color="red"
+        )
+        no_match_label.grid(row=1, column=0, columnspan=4, pady=20)
+        return
 
     header_labels = ["Date", "Match", "Venue"]
     header_font = ("Arial Bold", 18)
@@ -43,6 +54,7 @@ def audience_dashboard_window():
             text=header, 
             font=header_font, 
             text_color=header_fg_color, 
+            corner_radius=5,
             bg_color=header_bg_color,
             width=200,
             height=40,

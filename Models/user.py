@@ -37,7 +37,7 @@ def validate_registration(name, email, password, phone, role,confirm_password):
 
     name_regex = r"^[A-Za-z'-]{4,50}$"
     if not re.match(name_regex, name):
-        return "Name must be 4-50 letters only without spaces", False
+        return "Name must be 4-50 letters only (not numbers or any special character) without spaces", False
     
     email_regex = r'^(?!.*\.\.)(?!\.)(?!.*\.$)[a-zA-Z0-9._]+@gmail\.com$'
     if not re.match(email_regex, email):
@@ -49,6 +49,9 @@ def validate_registration(name, email, password, phone, role,confirm_password):
 
     if len(password) < 8:
         return 'Password must contain at least 8 characters', False
+    if len(password) > 72:
+        return 'Password must not exceed 72 characters', False
+
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -84,25 +87,26 @@ def register_user(name, email, password, phone, role):
         return "Account created successfully", True
     except Exception as e:
         conn.rollback()
-        return f"Error: {e}", False
+        print(f"DB Error: {e}")  # log it
+        return "Something went wrong during registration", False    
     finally:
         cursor.close()
         conn.close()
 
     
-def get_role(email):
+def get_user_info(email):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT role FROM Users WHERE Email=:1",
+        "SELECT UserID,Name,Phone,Role FROM Users WHERE Email=:1",
         (email,)
     )
     result = cursor.fetchone()
     cursor.close()
     conn.close()
     
-    return result[0]
+    return result
 
 
        

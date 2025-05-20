@@ -2,6 +2,7 @@ CREATE TABLE Bookings (
     BookingID NUMBER PRIMARY KEY,
     OrganizerID NUMBER REFERENCES Users(UserID),
     MatchID NUMBER REFERENCES Matches(MatchID),
+    GroundID NUMBER REFERENCES Ground(GroundID),
     BookingDate DATE,
     TotalHours NUMBER,
     TotalCost NUMBER

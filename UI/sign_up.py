@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from UI.organizer_dashboard import organizer_dashboard_window
+from Models.user import get_user_info
 
 def signUp_window():
     
@@ -25,12 +27,15 @@ def signUp_window():
             msg, inserted = register_user(name, email, password, phone, role)
             if inserted:
                 messagebox.showinfo("Success", msg)
+                user_info = get_user_info(email)
+                userID=user_info[0]
+
                 if role == 'Audience':
                     app.destroy()
-                    audience_dashboard_window()
+                    audience_dashboard_window(userID)
                 else:
                     app.destroy()
-                    #organizer_dashboard_window()   (Umar's work)
+                    organizer_dashboard_window(userID)  
             else:
                 messagebox.showerror("Database Error", msg)
         
@@ -87,6 +92,7 @@ def signUp_window():
     left_frame.grid_columnconfigure(0, weight=1)
 
     left_frame.bind("<Configure>", resize_image)
+
 
     right_frame = ctk.CTkFrame(master=main_frame, fg_color="#000000")
     right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)

@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
+from UI.admin_dashboard import admin_dashboard_window
+
 
 def authenticate_admin_window(name,email,password,phone,role):
     
@@ -13,7 +15,7 @@ def authenticate_admin_window(name,email,password,phone,role):
                 win.destroy()
                 if inserted:
                     messagebox.showinfo("Success", msg)
-                    #admin_dashboard_window()         (Sajjad's work)
+                    admin_dashboard_window()         #(Sajjad's work)
                 else:
                     messagebox.showerror("Database Error", msg)
                     signUp_window()
@@ -24,7 +26,8 @@ def authenticate_admin_window(name,email,password,phone,role):
     
 
     win = ctk.CTk()
-    win.geometry("600x500")
+    win.attributes("-fullscreen", True)
+    win.bind("<Escape>", lambda e: win.attributes("-fullscreen", False))
     win.title("Admin Authentication")
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")

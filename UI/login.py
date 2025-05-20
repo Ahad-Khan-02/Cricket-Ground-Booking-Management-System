@@ -1,29 +1,38 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from UI.admin_dashboard import admin_dashboard_window
+from UI.organizer_dashboard import organizer_dashboard_window
+from UI.window_utils import switch_window
+
 
 
 def login_window():
 
-    from Models.user import authenticate_user,get_role
+    from Models.user import authenticate_user,get_user_info
     from UI.sign_up import signUp_window
     from UI.audience_dashboard import audience_dashboard_window
     from UI.heading import heading
     
     def login(email,password):
+        if not email or not password:
+            messagebox.showerror("Error", "Please enter both email and password.")
+            return
         data=authenticate_user(email,password)
         if data:
             messagebox.showinfo("Login Success")
-            role=get_role(email)
+            user_info=get_user_info(email)
+            role=user_info[3]
+            userID=user_info[0]
             if role == 'Audience':
                 app.destroy()
-                audience_dashboard_window()
+                audience_dashboard_window(userID)
             elif role == 'Organizer':
                 app.destroy()
-                #organizer_dashnoard_window()
+                organizer_dashboard_window(userID)
             else:
                 app.destroy()
-                #admin_dashnoard_window()
+                admin_dashboard_window()
         else:
             messagebox.showerror("Error", "Invalid email or password.")
 
@@ -48,34 +57,41 @@ def login_window():
     left_frame = ctk.CTkFrame(master=main_frame)
     left_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-    image_path = "bg1.jpg"  
-    original_image = Image.open(image_path)
-
-    def resize_image(event):
-        frame_width = event.width
-        frame_height = event.height
-
-        aspect_ratio = original_image.width / original_image.height
-
-        new_width = frame_width
-        new_height = int(new_width / aspect_ratio)
-
-        if new_height > frame_height:
-            new_height = frame_height
-            new_width = int(new_height * aspect_ratio)
-
-        resized_image = original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    try:
+        original_image = Image.open("bg1.jpg")
+        resized_image = original_image.resize((800, 650), Image.Resampling.LANCZOS)
         tk_image = ImageTk.PhotoImage(resized_image)
-        image_label.configure(image=tk_image)
+        image_label = ctk.CTkLabel(master=left_frame, text="", image=tk_image)
         image_label.image = tk_image
+    except Exception as e:
+        image_label = ctk.CTkLabel(master=left_frame, text="Image not found", font=("Arial", 20))
+    image_label.grid(row=0, column=0, padx=10, pady=10)
 
-    image_label = ctk.CTkLabel(master=left_frame, text="", image="")
-    image_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+    # def resize_image(event):
+    #     frame_width = event.width
+    #     frame_height = event.height
 
-    left_frame.grid_rowconfigure(0, weight=1)
-    left_frame.grid_columnconfigure(0, weight=1)
+    #     aspect_ratio = original_image.width / original_image.height
 
-    left_frame.bind("<Configure>", resize_image)
+    #     new_width = frame_width
+    #     new_height = int(new_width / aspect_ratio)
+
+    #     if new_height > frame_height:
+    #         new_height = frame_height
+    #         new_width = int(new_height * aspect_ratio)
+
+    #     resized_image = original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    #     tk_image = ImageTk.PhotoImage(resized_image)
+    #     image_label.configure(image=tk_image)
+    #     image_label.image = tk_image
+
+    # image_label = ctk.CTkLabel(master=left_frame, text="", image="")
+    # image_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    # left_frame.grid_rowconfigure(0, weight=1)
+    # left_frame.grid_columnconfigure(0, weight=1)
+
+    # left_frame.bind("<Configure>", resize_image)
 
     right_frame = ctk.CTkFrame(master=main_frame, fg_color="#000000")
     right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
@@ -88,6 +104,8 @@ def login_window():
 
     email_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Email")
     email_entry.grid(row=1, column=0, pady=10, padx=20, sticky="ew")
+    email_entry.focus()
+
 
     password_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Password", show="*")
     password_entry.grid(row=2, column=0, pady=10, padx=20, sticky="ew")
