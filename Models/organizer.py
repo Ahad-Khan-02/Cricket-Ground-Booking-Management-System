@@ -1,6 +1,6 @@
-import datetime
-import oracledb
 from DB.connection import get_connection
+import datetime
+
 
 def get_all_grounds():
     try:
@@ -9,7 +9,6 @@ def get_all_grounds():
         cursor.execute("SELECT GroundID, GroundName, Location, Capacity, HourlyRate FROM Ground")
         results = cursor.fetchall()
         conn.close()
-        # print(results)
         return results
     except Exception as e:
         print(f"Error fetching grounds: {e}")
@@ -36,13 +35,12 @@ def insert_organizer_booking_and_payment(organizer_id, ground_id, booking_date, 
     cursor = conn.cursor()
 
     try:
-        # Calculate End Time
+
         start_dt = datetime.datetime.combine(match_date, start_time)
         end_dt = start_dt + datetime.timedelta(hours=total_hours)
         end_time = end_dt.time()
 
 
-        # Step 1: Insert into MATCHES
         match_id_var = cursor.var(int)
         cursor.execute("""
             INSERT INTO CricketMatches (MatchTitle, OrganizerID, GroundID, MatchDate, StartTime, EndTime, TeamA, TeamB)
@@ -56,7 +54,6 @@ def insert_organizer_booking_and_payment(organizer_id, ground_id, booking_date, 
 
         match_id = get_match_id(match_title,match_date)
 
-        # Step 2: Insert into BOOKINGS and get BookingID
         total_amount = total_hours * hourly_rate
 
 
@@ -68,8 +65,6 @@ def insert_organizer_booking_and_payment(organizer_id, ground_id, booking_date, 
         conn.commit()
         booking_id = get_booking_id(organizer_id,ground_id)
 
-
-        # Step 3: Insert into PAYMENTS
         cursor.execute("""
             INSERT INTO Payments (UserID, PaymentType, RelatedID, Amount, PaymentDate, Status)
             VALUES (:1, 'Organizer', :2, :3, TO_DATE(:4, 'YYYY-MM-DD'), 'Paid')
@@ -89,7 +84,6 @@ def insert_organizer_booking_and_payment(organizer_id, ground_id, booking_date, 
         conn.close()
 
 
-# 1. Get Organizer ID by username
 def get_organizer_id(email):
     try:
         conn = get_connection()
@@ -107,7 +101,7 @@ def get_organizer_id(email):
         cursor.close()
         conn.close()
 
-# 2. Get Ground ID by ground name
+
 def get_ground_id(ground_name):
     try:
         conn = get_connection()
@@ -125,7 +119,6 @@ def get_ground_id(ground_name):
         cursor.close()
         conn.close()
 
-# 3. Get Booking ID by organizer, ground, and date
 def get_booking_id(organizer_id, ground_id):
     try:
         conn = get_connection()
@@ -143,7 +136,6 @@ def get_booking_id(organizer_id, ground_id):
         cursor.close()
         conn.close()
 
-# 4. Get Match ID by title and date
 def get_match_id(match_title, match_date):
     try:
         conn = get_connection()

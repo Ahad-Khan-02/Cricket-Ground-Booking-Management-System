@@ -33,11 +33,11 @@ def validate_registration(name, email, password, phone, role,confirm_password):
         return "All fields must be filled",False
     
     if password != confirm_password:
-        return "Passwords do not match",False
+        return "Passwords do not match. Please re-enter to confirm.",False
 
     name_regex = r"^[A-Za-z'-]{4,50}$"
     if not re.match(name_regex, name):
-        return "Name must be 4-50 letters only (not numbers or any special character) without spaces", False
+        return "Name must contain only letters, hyphens, or apostrophes (4–50 characters, no spaces or numbers).", False
     
     email_regex = r'^(?!.*\.\.)(?!\.)(?!.*\.$)[a-zA-Z0-9._]+@gmail\.com$'
     if not re.match(email_regex, email):
@@ -87,7 +87,7 @@ def register_user(name, email, password, phone, role):
         return "Account created successfully", True
     except Exception as e:
         conn.rollback()
-        print(f"DB Error: {e}")  # log it
+        print(f"DB Error: {e}")  
         return "Something went wrong during registration", False    
     finally:
         cursor.close()

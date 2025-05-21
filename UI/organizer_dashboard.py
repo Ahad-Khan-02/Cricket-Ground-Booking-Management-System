@@ -11,26 +11,29 @@ booking_data = {}
 ground_info = {}
 
 def is_english(text):
-    """Check if text contains only English characters and spaces"""
     return bool(re.match('^[a-zA-Z ]+$', text))
 
 def heading(parent, text):
-    label = ctk.CTkLabel(parent, text=text, font=("Arial Bold", 28), text_color="#FFD700")
+    label = ctk.CTkLabel(parent, text=text, font=("Bebas Neue", 28), text_color="#FFD700")
     label.pack(pady=20)
 
-def open_payment_window(userID):
+def open_payment_window(userID,ground,app,userid):
     global booking_data
     global ground_info
 
     payment_win = ctk.CTkToplevel()
     payment_win.title("Payment Confirmation")
-    payment_win.geometry("550x700")
+    payment_win.attributes("-fullscreen", True)
+    payment_win.bind("<Escape>", lambda e: payment_win.attributes("-fullscreen", False))
     payment_win.configure(fg_color="#1A1A1A")
 
     payment_win.geometry("{0}x{1}+0+0".format(payment_win.winfo_screenwidth(), payment_win.winfo_screenheight()))
     payment_win.configure(fg_color="#0D1B2A")
 
-    heading(payment_win, "Confirm & Pay")
+    back_button = ctk.CTkButton(payment_win, text="← Back", width=80, command= lambda: (payment_win.destroy(),open_booking_window(ground,app,userid)))
+    back_button.place(x=40, y=40)  
+
+    heading(payment_win, "Confirm & Book")
 
     scroll_frame = ctk.CTkScrollableFrame(payment_win, fg_color="#2A2A2A")
     scroll_frame.pack(padx=20, pady=20, fill="both", expand=True)
@@ -75,7 +78,7 @@ def open_payment_window(userID):
             voucher_path = generate_organizer_voucher(booking_data, ground_info)
             messagebox.showinfo(
                 "Success", 
-                f"Payment successful!\n"
+                f"Ground Booked!\n"
                 f"Voucher saved to:\n{voucher_path}"
             )
             matchID=get_match_id(booking_data['match_title'],booking_data['match_date'])
@@ -83,11 +86,9 @@ def open_payment_window(userID):
             payment_win.destroy()
             organizer_dashboard_window(organizerID)
         else:
-            messagebox.showerror("Error", f"Payment failed: {result}")
-        # payment_win.destroy()
-        # organizer_dashboard_window(organizerID)
+            messagebox.showerror("Error", f"Booking failed: {result}")
 
-    ctk.CTkButton(payment_win, text="Confirm & Pay", command=lambda: (confirm_and_pay(userID))).pack(pady=20)
+    ctk.CTkButton(payment_win, text="Confirm & Book", command=lambda: (confirm_and_pay(userID))).pack(pady=20)
 
 def open_booking_window(ground, app,userID):
     global ground_info
@@ -105,12 +106,14 @@ def open_booking_window(ground, app,userID):
 
     win = ctk.CTkToplevel()
     win.title("Booking Details")
-    win.geometry("550x850")
+    win.attributes("-fullscreen", True)
+    win.bind("<Escape>", lambda e: win.attributes("-fullscreen", False))
     win.configure(fg_color="#1A1A1A")
 
     win.geometry("{0}x{1}+0+0".format(win.winfo_screenwidth(), win.winfo_screenheight()))
     win.configure(fg_color="#0D1B2A")
 
+    
     heading(win, "Booking Details")
 
     scroll_frame = ctk.CTkScrollableFrame(win, fg_color="#2A2A2A")
@@ -204,7 +207,7 @@ def open_booking_window(ground, app,userID):
     entries['match_date'].bind("<KeyRelease>", lambda e: update_details())
     entries['start_time'].bind("<KeyRelease>", lambda e: update_details())
 
-    def confirm_booking():
+    def confirm_booking(ground,app,userID):
         required_fields = {
             'total_hours': "Total Hours",
             'match_title': "Match Title",
@@ -235,27 +238,22 @@ def open_booking_window(ground, app,userID):
             t_a = entries['team_a'].get()
             t_b = entries['team_b'].get()
 
-            # Validation 1: Total hours <= 10
             if hrs > 10:
                 messagebox.showerror("Invalid Input", "Total hours cannot be more than 10 hours")
                 return
 
-            # Validation 2: Match title in English only
             if not is_english(m_title):
                 messagebox.showerror("Invalid Input", "Match title must contain only English characters")
                 return
 
-            # Validation 3: Match date not before current date
             if m_date < today:
                 messagebox.showerror("Invalid Date", "Match date cannot be before today's date")
                 return
 
-            # Validation 4: Team names in English only
             if not is_english(t_a) or not is_english(t_b):
                 messagebox.showerror("Invalid Input", "Team names must contain only English characters")
                 return
             
-            # Check if ground is already booked for selected match date
             if not is_ground_available(ground_id, m_date):
                 messagebox.showerror("Already Booked", 
                                    f"'{name}' is already booked for {m_date.strftime('%Y-%m-%d')}!\n"
@@ -280,7 +278,7 @@ def open_booking_window(ground, app,userID):
             }
 
             win.destroy()
-            open_payment_window(userID)
+            open_payment_window(userID,ground,app,userID)
 
         except ValueError as e:
             messagebox.showerror("Error", f"Invalid input format: {e}")
@@ -295,13 +293,10 @@ def open_booking_window(ground, app,userID):
             app.destroy()
             organizer_dashboard_window(userID)
 
-    ctk.CTkButton(scroll_frame, 
-                 text="← Back to Dashboard",
-                 fg_color="transparent",
-                 hover_color="#2A2A2A",
-                 command=back_to_dashboard).pack(pady=10)
+    back_button = ctk.CTkButton(win, text="← Back", width=80, command= lambda: (back_to_dashboard()))
+    back_button.place(x=40, y=40) 
 
-    ctk.CTkButton(scroll_frame, text="Confirm Booking", command=confirm_booking).pack(pady=20)
+    ctk.CTkButton(scroll_frame, text="Confirm Booking", command= lambda: (confirm_booking(ground,app,userID))).pack(pady=20)
 
 def organizer_dashboard_window(userID):
     ctk.set_appearance_mode("dark")
@@ -309,7 +304,9 @@ def organizer_dashboard_window(userID):
 
     app = ctk.CTk()
     app.title("Organizer Dashboard")
-    app.geometry("1100x600")
+    app.attributes("-fullscreen", True)
+    app.bind("<Escape>", lambda e: app.attributes("-fullscreen", False))
+
     app.configure(fg_color="#0D1B2A")
 
     app.geometry("{0}x{1}+0+0".format(app.winfo_screenwidth(), app.winfo_screenheight()))
@@ -318,6 +315,10 @@ def organizer_dashboard_window(userID):
     heading_frame = ctk.CTkFrame(app, fg_color="transparent")
     heading_frame.pack(pady=20)
     
+    from UI.login import login_window
+    back_button = ctk.CTkButton(app, text="← Back", width=80, command= lambda: (app.destroy(),login_window()))
+    back_button.place(x=40, y=40)  
+
     ctk.CTkLabel(heading_frame, 
                 text="Available Grounds", 
                 font=("Arial Bold", 28), 
@@ -366,5 +367,6 @@ def organizer_dashboard_window(userID):
                            command=lambda g=ground: open_booking_window(g, app,userID))
         btn.grid(row=row, column=4, padx=10, pady=5)
 
+      
     app.mainloop()
 

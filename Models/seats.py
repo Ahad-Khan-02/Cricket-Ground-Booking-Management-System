@@ -1,6 +1,4 @@
-# Models/seats.py
 from DB.connection import get_connection
-
 
 
 def populate_seats(match_id, capacity):
@@ -33,6 +31,34 @@ def populate_seats(match_id, capacity):
     finally:
         cursor.close()
         conn.close()
+
+
+def delete_seats_for_past_matches():
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            DELETE FROM Seats
+            WHERE MatchID IN (
+                SELECT MatchID FROM CricketMatches
+                WHERE MatchDate < SysDate
+            )
+        """) 
+
+        deleted_count = cursor.rowcount
+        connection.commit()
+        return deleted_count
+
+    except Exception as e:
+        connection.rollback()
+        print("Error:", e)
+        return 0
+    finally:
+        cursor.close()
+        connection.close()
+
 
 def get_available_seats(match_id, seat_category):
     conn = get_connection()

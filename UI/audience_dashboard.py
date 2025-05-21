@@ -3,16 +3,17 @@ import customtkinter as ctk
 def audience_dashboard_window(audienceID):
 
     from Models.matches import get_upcoming_matches,get_match_info
+    from UI.login import login_window
     from UI.heading import heading
-    from UI.payment import payment_window   
+    from UI.payment import booking_window   
 
     matches=get_upcoming_matches()
     
-    print(matches)
-
     def book_ticket(matchID):
         match_info=get_match_info(matchID)
-        payment_window(match_info,matchID,audienceID)
+        app.destroy()
+        booking_window(match_info,matchID,audienceID)
+
 
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
@@ -30,7 +31,7 @@ def audience_dashboard_window(audienceID):
     main_frame.grid_rowconfigure(0, weight=0)  
     main_frame.grid_rowconfigure(1, weight=1) 
 
-    back_button = ctk.CTkButton(app, text="← Back", width=80, command= lambda: (app.destroy()))
+    back_button = ctk.CTkButton(app, text="← Back", width=80, command= lambda: (app.destroy(),login_window()))
     back_button.place(x=40, y=40)  
 
     if not matches:
@@ -44,8 +45,7 @@ def audience_dashboard_window(audienceID):
         return
 
     header_labels = ["Date", "Match", "Venue"]
-    header_font = ("Arial Bold", 18)
-    header_bg_color = "#2F4F4F" 
+    header_font = ("Montserrat", 18)
     header_fg_color = "#FFD700"  
 
     for i, header in enumerate(header_labels):
@@ -55,7 +55,6 @@ def audience_dashboard_window(audienceID):
             font=header_font, 
             text_color=header_fg_color, 
             corner_radius=5,
-            bg_color=header_bg_color,
             width=200,
             height=40,
             anchor="center"

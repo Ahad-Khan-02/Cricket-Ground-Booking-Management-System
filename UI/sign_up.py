@@ -47,13 +47,13 @@ def signUp_window():
     app = ctk.CTk()
     app.attributes("-fullscreen", True)
     app.bind("<Escape>", lambda e: app.attributes("-fullscreen", False))
-    app.title("Cricket Ground Booking - Sign Up")
+    app.title("Crickzone - Sign Up")
 
     app.grid_rowconfigure(0, weight=0)
     app.grid_rowconfigure(1, weight=1, minsize=400)  
     app.grid_columnconfigure(0, weight=1)
     
-    heading(app, 'Cricketery')
+    heading(app, 'Crickzone')
 
     main_frame = ctk.CTkFrame(master=app)
     main_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
@@ -64,7 +64,7 @@ def signUp_window():
     left_frame = ctk.CTkFrame(master=main_frame)
     left_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-    image_path = "bg1.jpg"
+    image_path = "Images/image.jpg"
     original_image = Image.open(image_path)
 
     def resize_image(event):
@@ -101,13 +101,13 @@ def signUp_window():
     right_frame.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), weight=1)
     right_frame.grid_columnconfigure(0, weight=1)
 
-    title = ctk.CTkLabel(master=right_frame, text="Sign Up", font=("Arial", 24))
+    title = ctk.CTkLabel(master=right_frame, text="Sign Up", font=("Montserrat", 24))
     title.grid(row=0, column=0, pady=(20, 10))
 
     username_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Username")
     username_entry.grid(row=1, column=0, pady=10, padx=20, sticky="ew")
 
-    email_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Email")
+    email_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Gmail")
     email_entry.grid(row=2, column=0, pady=10, padx=20, sticky="ew")
 
     phone_entry = ctk.CTkEntry(master=right_frame, placeholder_text="Phone")

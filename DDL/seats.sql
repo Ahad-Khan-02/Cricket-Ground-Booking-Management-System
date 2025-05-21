@@ -2,7 +2,7 @@ CREATE TABLE Seats (
     SeatID NUMBER PRIMARY KEY,
     MatchID NUMBER REFERENCES Matches(MatchID),
     SeatNumber VARCHAR2(10),
-    AudienceID NUMBER REFERENCES Users(UserID), -- NULL if unbooked
+    AudienceID NUMBER REFERENCES Users(UserID), 
     Status VARCHAR2(20) CHECK (Status IN ('Available', 'Booked'))
 );
 

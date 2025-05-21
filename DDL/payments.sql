@@ -2,7 +2,7 @@ CREATE TABLE Payments (
     PaymentID NUMBER PRIMARY KEY,
     UserID NUMBER REFERENCES Users(UserID),
     PaymentType VARCHAR2(20) CHECK (PaymentType IN ('Organizer', 'Audience')),
-    RelatedID NUMBER, -- Can link to either Bookings or AudienceBookings
+    RelatedID NUMBER,  
     Amount NUMBER,
     PaymentDate DATE,
     Status VARCHAR2(20) CHECK (Status IN ('Paid', 'Pending', 'Failed'))

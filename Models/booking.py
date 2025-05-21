@@ -8,7 +8,7 @@ def insert_audience_booking_and_payment(user_id, match_id,num_tickets,total_amou
     cursor = conn.cursor()
 
     try:
-        # Step 1: Insert into AudienceBookings and get the generated ID
+
         audience_booking_id_var = cursor.var(int)
         cursor.execute("""
             INSERT INTO AudienceBookings (AudienceID, MatchID, NumOfTickets, BookingDate, TotalAmount)
@@ -18,22 +18,22 @@ def insert_audience_booking_and_payment(user_id, match_id,num_tickets,total_amou
 
         audience_booking_id = audience_booking_id_var.getvalue()[0]
 
-        # Step 2: Insert into Payments using the booking ID
+
         cursor.execute("""
             INSERT INTO Payments (UserID, PaymentType, RelatedID, Amount, PaymentDate, Status)
             VALUES (:1, 'Audience', :2, :3, :4, 'Paid')
         """, (user_id, audience_booking_id, total_amount, datetime.date.today()))
         
-        print(seat_category)
-        x=book_seat(seat_category,user_id,num_tickets,match_id)
-        print(x)
+ 
+        book_seat(seat_category,user_id,num_tickets,match_id)
+
 
         conn.commit()
-        return True, 'Payment Successfully done'  # Success
+        return True, 'Booking Successfully done' 
 
     except Exception as e:
         conn.rollback()
-        return False, str(e)  # Error
+        return False, str(e)  
 
     finally:
         cursor.close()

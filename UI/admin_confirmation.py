@@ -9,20 +9,20 @@ def authenticate_admin_window(name,email,password,phone,role):
     from Models.user import register_user
 
     def authenticate_admin(adminid, adminpassword):
-            if adminid == 'admin' and adminpassword == 'cricket123':
+            id='admin'
+            pw='cricket123'
+            if adminid == id and adminpassword == pw:
                 messagebox.showinfo("Authenticated", "Admin Confirmed")
                 msg, inserted = register_user(name, email, password, phone, role)
-                win.destroy()
                 if inserted:
                     messagebox.showinfo("Success", msg)
-                    admin_dashboard_window()         #(Sajjad's work)
+                    win.destroy()
+                    admin_dashboard_window()         
                 else:
                     messagebox.showerror("Database Error", msg)
                     signUp_window()
             else:
                 messagebox.showerror("Error", "Invalid ID and Password")
-                win.destroy()
-                signUp_window()
     
 
     win = ctk.CTk()
@@ -36,7 +36,7 @@ def authenticate_admin_window(name,email,password,phone,role):
     frame = ctk.CTkFrame(win, fg_color="#1A1A2E")
     frame.pack(pady=30, padx=30, fill="both", expand=True)
 
-    heading_ = ctk.CTkLabel(frame, text="ADMIN AUTHENTICATION", font=("Arial", 28, "bold"), text_color="white")
+    heading_ = ctk.CTkLabel(frame, text="ADMIN AUTHENTICATION", font=("Montserrat", 28, "bold"), text_color="white")
     heading_.pack(pady=20)
 
     adminID_entry = ctk.CTkEntry(frame, placeholder_text="Enter Admin ID")
@@ -48,6 +48,10 @@ def authenticate_admin_window(name,email,password,phone,role):
     confirm_btn = ctk.CTkButton(frame, text="Confirm",
                                 command=lambda: authenticate_admin(adminID_entry.get(), adminPassword_entry.get()))
     confirm_btn.pack(pady=30)
+    
+    back_btn = ctk.CTkButton(frame, text="Back",
+                                command=lambda: (win.destroy(),signUp_window()))
+    back_btn.pack(pady=30)
 
     win.mainloop()
 

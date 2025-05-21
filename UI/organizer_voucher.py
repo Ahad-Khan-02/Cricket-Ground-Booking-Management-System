@@ -5,14 +5,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 
 def generate_organizer_voucher(booking_data,ground_info):
-    """
-    Generates a booking confirmation voucher for the organizer
     
-    Args:
-        booking_data (dict): Contains all booking details from the payment window
-    Returns:
-        str: Path to the generated PDF file
-    """
     downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
     filename = f"Ground_Booking_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     filepath = os.path.join(downloads_path, filename)
@@ -69,9 +62,8 @@ def generate_organizer_voucher(booking_data,ground_info):
     c.drawString(60, y + 10, "Payment Summary")
     c.setFont("Helvetica", 13)
     c.drawString(60, y - 10, f"Total Hours Booked: {booking_data['total_hours']}")
-    # c.drawString(60, y - 30, f"Hourly Rate: Rs. {booking_data['hourly_rate']:.2f}")
     total_amount = booking_data['total_hours'] * booking_data['hourly_rate']
-    c.drawString(60, y - 30, f"Total Amount Paid: Rs. {total_amount:.2f}")
+    c.drawString(60, y - 30, f"Total Amount: Rs. {total_amount:.2f}")
 
     # Footer Notes
     y -= 100
